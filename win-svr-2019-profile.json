@@ -1,0 +1,136 @@
+{
+  "name": "windows-server-2019-security-profile",
+  "title": "Windows Server 2019 Security Baseline",
+  "maintainer": "Security Team",
+  "copyright": "Your Company",
+  "license": "Apache-2.0",
+  "summary": "A baseline profile to ensure Windows Server 2019 security compliance",
+  "version": "1.0.0",
+  "supports": [
+    {
+      "os-family": "windows",
+      "release": "2019"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "password_length",
+      "default": 14,
+      "description": "The minimum length of passwords"
+    },
+    {
+      "name": "password_history",
+      "default": 24,
+      "description": "The number of passwords to remember"
+    },
+    {
+      "name": "audit_log_size",
+      "default": 20480,
+      "description": "The maximum size of the security audit log in KB"
+    },
+    {
+      "name": "account_lockout_threshold",
+      "default": 5,
+      "description": "The number of failed login attempts before an account is locked"
+    },
+    {
+      "name": "maximum_password_age",
+      "default": 60,
+      "description": "The maximum age of a password before it must be changed"
+    },
+    {
+      "name": "encryption_algorithm",
+      "default": "AES256",
+      "description": "The encryption algorithm used for data protection"
+    }
+  ],
+  "controls": [
+    {
+      "id": "windows-password-policy",
+      "title": "Password Policy",
+      "desc": "Ensure the password policy meets security requirements",
+      "impact": 1.0,
+      "refs": [
+        {
+          "ref": "CIS Microsoft Windows Server 2019 Benchmark",
+          "url": "https://www.cisecurity.org"
+        }
+      ],
+      "tags": {
+        "nist": ["IA-5"],
+        "severity": "critical"
+      },
+      "tests": [
+        {
+          "desc": "Ensure password length is at least 14 characters",
+          "results": [
+            {
+              "type": "command",
+              "command": "net accounts",
+              "output": "Minimum password length                  14"
+            }
+          ]
+        },
+        {
+          "desc": "Ensure password history is at least 24 passwords",
+          "results": [
+            {
+              "type": "command",
+              "command": "net accounts",
+              "output": "Password history length                  24"
+            }
+          ]
+        },
+        {
+          "desc": "Ensure account lockout threshold is 5 failed attempts",
+          "results": [
+            {
+              "type": "registry_key",
+              "key": "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
+              "value": "LockoutBadCount",
+              "output": "5"
+            }
+          ]
+        },
+        {
+          "desc": "Ensure maximum password age is 60 days",
+          "results": [
+            {
+              "type": "command",
+              "command": "net accounts",
+              "output": "Maximum password age (days)                60"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "windows-audit-policy",
+      "title": "Audit Policy",
+      "desc": "Ensure the audit policy is configured correctly",
+      "impact": 0.7,
+      "tags": {
+        "nist": ["AU-2", "AU-12"],
+        "severity": "high"
+      },
+      "tests": [
+        {
+          "desc": "Ensure audit log size is at least 20 MB",
+          "results": [
+            {
+              "type": "registry_key",
+              "key": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Security",
+              "value": "MaxSize",
+              "output": "20480"
+            }
+          ]
+        },
+        {
+          "desc": "Ensure log retention method is set to overwrite as needed",
+          "results": [
+            {
+              "type": "registry_key",
+              "key": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Security",
+              "value": "Retention",
+              "output": "0"
+            }
